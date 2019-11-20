@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}시작{% endblock title %}
+
+{% block content %}
+{% for movie in movies %}
+{{ movie.title }}
+<a href="{% url 'movies:detail' movie.id %}">{{ movie.poster_url }}</a>
+{% endfor %}
+{% endblock content %}
