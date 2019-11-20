@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}영화 상세정보{% endblock title %}
+
+{% block content %}
+<p>
+  {{ movie.title }}
+  {{ movie.audience }}
+  {{ movie.description }}
+</p><hr>
+
+<a href="{% url 'movies:like' movie.pk %}">
+  {% if user in movie.liked_users.all %}
+  <i class="fas fa-heart fa-lg" style="color: pink"></i>
+  {% else %}
+  <i class="far fa-heart fa-lg" style="color: pink"></i>
+  {% endif %}
+</a>
+<span id="like-count">{{ movie.liked_users.all | length }}</span>명이 이 글을 좋아합니다.
+
+
+{% for review in reviews %}
+<p>
+  {{ review.content }}
+  {{ review.score }}
+  {% if user != review.user %}
+    {% if user in movie.user.followers.all %}
+    <a href="{% url 'movies:follow' movie.pk review.pk review.user.pk %}" class="btn btn-primary btn-lg">Unfollow</a>
+    {% else %}
+    <a href="{% url 'movies:follow' movie.pk review.pk review.user.pk %}" class="btn btn-primary btn-lg">Follow</a>
+    {% endif %} 
+  {% endif %}
+  {% if review.user == request.user %}
+  <form action="{% url 'movies:delete_review' movie.pk review.pk %}", method="POST">
+    {% csrf_token %}
+    <button class="btn btn-link" type="submit">Review Delete</button>
+  </form>
+  {% endif %}
+</p><hr>
+{% endfor %}
+
+{% if user.is_authenticated %}
+<form action="{% url 'movies:create_review' movie.pk %}", method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn-warning" type="submit">Review Create</button>
+</form>
+{% endif %}
+{% endblock content %}
